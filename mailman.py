@@ -6,7 +6,6 @@ from email import encoders
 import dropbox
 import os
 
-# 5zHcLPZAPv4AAAAAAAAAF19XgtARCC6kHRZZ0y61j7RhUaDRHRc-wNagYnHVx7hg
 fromaddr     = os.environ.get('FROM_ADDR', 'mail.tribal.app@gmail.com')
 fromaddr_pwd = os.environ.get('FROM_ADDR_PWD', None)
 token        = os.environ.get('TOKEN', None)
