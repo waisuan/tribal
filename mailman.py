@@ -22,11 +22,11 @@ def _download():
         return False
     return True
 
-def _construct(toaddr):
+def _construct(name, toaddr):
     msg = MIMEMultipart()
     msg['From'] = fromaddr
     msg['To'] = toaddr
-    msg['Subject'] = "Hello, world!"
+    msg['Subject'] = "Hello, " + name
 
     body = """
             Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -48,8 +48,8 @@ def _construct(toaddr):
     attachment.close()
     return msg
 
-def _send(toaddr):
-    msg = _construct(toaddr)
+def _send(name, toaddr):
+    msg = _construct(name, toaddr)
 
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -66,4 +66,4 @@ def _send(toaddr):
 
 def _mailman(name, toaddr):
     if _download():
-        _send(toaddr)
+        _send(name, toaddr)
