@@ -1,5 +1,6 @@
 from bottle import get, post, request, route, run, static_file, error, debug, response
 import mailman
+import os
 
 # static set-up
 @route('/favicon.ico')
@@ -45,4 +46,7 @@ def mistake404(code):
 
 # start
 # debug(True)
-run(host='localhost', port=8080, debug=True)
+if os.environ.get('APP_LOCATION') == 'heroku':
+    run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+else:
+    run(host='localhost', port=8080, debug=True)
