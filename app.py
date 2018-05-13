@@ -44,5 +44,5 @@ def mistake404(code):
     return static_file('404.html', root='./app')
 
 # start
-debug(True)
+# debug(True)
 run(host='localhost', port=8080, debug=True)

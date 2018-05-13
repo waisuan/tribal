@@ -4,10 +4,13 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 import dropbox
+import os
 
-token    = '5zHcLPZAPv4AAAAAAAAAF19XgtARCC6kHRZZ0y61j7RhUaDRHRc-wNagYnHVx7hg'
-filename = 'foo.pdf'
-fromaddr = 'mail.tribal.app@gmail.com'
+# 5zHcLPZAPv4AAAAAAAAAF19XgtARCC6kHRZZ0y61j7RhUaDRHRc-wNagYnHVx7hg
+fromaddr     = os.environ.get('FROM_ADDR', 'mail.tribal.app@gmail.com')
+fromaddr_pwd = os.environ.get('FROM_ADDR_PWD', None)
+token        = os.environ.get('TOKEN', None)
+filename     = os.environ.get('FILENAME', 'foo.pdf')
 
 def _download():
     dbx = dropbox.Dropbox(token)
@@ -52,7 +55,7 @@ def _send(toaddr):
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(fromaddr, "Zidane2234#")
+        server.login(fromaddr, fromaddr_pwd)
         text = msg.as_string()
         server.sendmail(fromaddr, toaddr, text)
     except:
