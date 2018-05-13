@@ -1,0 +1,34 @@
+<form class="container" ng-submit="submit()">
+    <div id="form-div" class="mt-5 p-5">
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name" ng-model="data.name" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <label for="email">E-mail</label>
+                <input type="text" class="form-control" id="email" ng-model="data.email" required>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 mb-3">
+                <button type="submit" class="btn btn-primary float-right" title="Send mail!" ng-class="{'disabled': submitting == true}">
+                    <span ng-show="submitting == false"><i class="fa fa-paper-plane"></i></span>
+                    <span ng-show="submitting == true"><i class="fa fa-spinner"></i></span>
+                </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="alert-success" class="alert alert-success fade show text-center" role="alert" ng-show="success == true">
+                    <i class="fa fa-check-circle"></i> <strong>Success!</strong>
+                </div>
+                <div id="alert-fail" class="alert alert-danger fade show text-center" role="alert" ng-show="failure == true">
+                    <i class="fa fa-times-circle"></i> <strong>Oops!</strong> Something went wrong. Please try again.
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
