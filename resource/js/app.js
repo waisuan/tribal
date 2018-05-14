@@ -1,3 +1,4 @@
 var app = angular.module('tribal', [
-    'ngRoute'
+    'ngRoute',
+    'bootstrap.fileField'
 ]);

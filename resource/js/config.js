@@ -10,6 +10,10 @@
         $routeProvider.when('/', {
             templateUrl: 'view/form.html',
             controller: 'FormCtrl'
+        })
+        $routeProvider.when('/admin', {
+            templateUrl: 'view/admin.html',
+            controller: 'AdminCtrl'
         }).otherwise({
             redirectTo: '/'
         })

@@ -1,4 +1,4 @@
-from bottle import get, post, request, route, run, static_file, error, debug, response
+from bottle import get, post, request, route, run, static_file, error, debug, response, TEMPLATES
 import mailman
 import os
 
@@ -45,8 +45,10 @@ def mistake404(code):
     return static_file('404.html', root='./app')
 
 # start
-# debug(True)
+TEMPLATES.clear()
 if os.environ.get('APP_LOCATION') == 'heroku':
     run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+elif os.environ.get('APP_LOCATION') == 'heroku_local':
+    run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
 else:
     run(host='localhost', port=8080, debug=True)
