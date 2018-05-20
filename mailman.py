@@ -8,16 +8,30 @@ import os
 
 fromaddr     = os.environ.get('FROM_ADDR', 'mail.tribal.app@gmail.com')
 fromaddr_pwd = os.environ.get('FROM_ADDR_PWD', None)
-token        = os.environ.get('TOKEN', None)
+token        = os.environ.get('TOKEN', '5zHcLPZAPv4AAAAAAAAAF19XgtARCC6kHRZZ0y61j7RhUaDRHRc-wNagYnHVx7hg')
 filename     = os.environ.get('FILENAME', 'foo.pdf')
+LOCAL_DIR    = './scratch/'
+DROPBOX_DIR  = '/'
+
+def _clean():
+    return
+
+def _upload(file):
+    dbx = dropbox.Dropbox(token)
+    try:
+        with open(LOCAL_DIR + file, 'rb') as f:
+            dbx.files_upload(f.read(), DROPBOX_DIR + file, dropbox.files.WriteMode('overwrite'))
+    except dropbox.exceptions.ApiError:
+        return False
+    return True
 
 def _download():
     dbx = dropbox.Dropbox(token)
-    print(dbx.users_get_current_account())
-    for entry in dbx.files_list_folder('').entries:
-        print(entry.name)
+    # print(dbx.users_get_current_account())
+    # for entry in dbx.files_list_folder('').entries:
+    #     print(entry.name)
     try:
-        dbx.files_download_to_file(filename, '/'+ filename)
+        dbx.files_download_to_file(filename, LOCAL_DIR + filename)
     except dropbox.exceptions.ApiError:
         return False
     return True
@@ -59,11 +73,18 @@ def _send(name, toaddr):
         server.sendmail(fromaddr, toaddr, text)
     except:
         print("Error whilst sending mail: ", sys.exc_info()[0])
+        return False
     finally:
         if server != None:
             server.quit()
+    return True
 
 
-def _mailman(name, toaddr):
-    if _download():
-        _send(name, toaddr)
+def _mailman_send(name, toaddr):
+    if  _download():
+        return _send(name, toaddr)
+    else:
+        return False
+
+def _mailman_store(title, message, file):
+    return _upload(file)

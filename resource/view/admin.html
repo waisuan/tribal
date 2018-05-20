@@ -17,15 +17,25 @@
                 <file-field class="btn btn-outline-primary btn-block" ng-model="data.attachment">Attach File</file-field>
             </div>
             <div class="col-md-10 mb-3 pl-1">
-                <input type="text" class="form-control" value="{{data.attachment.name}}" readonly>
+                <input type="text" class="form-control animated" value="{{data.attachment.name}}" ng-class="{'shake': empty}" readonly>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12 mb-3">
                 <button type="submit" class="btn btn-primary btn-lg float-right" title="Submit!" ng-class="{'disabled': submitting == true}">
                     <span ng-show="submitting == false"><i class="fa fa-rocket"></i></span>
-                    <span ng-show="submitting == true"><i class="fa fa-spinner"></i></span>
+                    <span ng-show="submitting == true"><i class="fa fa-spinner fa-spin"></i></span>
                 </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="alert-success" class="alert alert-success fade show text-center" role="alert" ng-show="success == true">
+                    <i class="fa fa-check-circle"></i> <strong>Success!</strong>
+                </div>
+                <div id="alert-fail" class="alert alert-danger fade show text-center" role="alert" ng-show="failure == true">
+                    <i class="fa fa-times-circle"></i> <strong>Oops!</strong> Something went wrong. Please try again. (Remember to only attach .pdf files!)
+                </div>
             </div>
         </div>
     </div>

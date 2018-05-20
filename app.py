@@ -1,4 +1,4 @@
-from bottle import get, post, request, route, run, static_file, error, debug, response, TEMPLATES
+from bottle import get, post, request, route, run, static_file, error, debug, response, TEMPLATES, BottleException
 import mailman
 import os
 
@@ -21,21 +21,41 @@ def server_static(path):
 
 # route set-up
 @get('/')
-def index():
+@get('/<path>')
+def index(path=None):
     raise static_file('index.html', root='./resource')
 
 @post('/')
-def submit():
+def sendMail():
     try:
         req = request.json
         if req is None:
             raise ValueError
+        if not mailman._mailman_send(req['name'], req['email']):
+            raise RuntimeError
+    except (ValueError, KeyError, RuntimeError):
+        response.status = 400
+        return
+    response.status = 200
+    return
 
-        mailman._mailman(req['name'], req['email'])
-    except ValueError:
+@post('/admin')
+def editMail():
+    try:
+        title = request.forms.get('title')
+        message = request.forms.get('message')
+        attachment = request.files.get('attachment')
+        if attachment is None or title is None or message is None:
+            raise ValueError
+        name, ext = os.path.splitext(attachment.filename)
+        if ext not in ('.pdf'):
+            raise ValueError
+        attachment.save('./scratch', True)
+        if not mailman._mailman_store(title, message, attachment.filename):
+            raise RuntimeError
+    except (ValueError, KeyError, RuntimeError, BottleException):
         response.status = 400
-    except KeyError:
-        response.status = 400
+        return
     response.status = 200
     return
 
