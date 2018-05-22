@@ -22,7 +22,7 @@
         </div>
         <div class="row">
             <div class="col-md-12 mb-3">
-                <button type="submit" class="btn btn-primary btn-lg float-right" title="Submit!" ng-class="{'disabled': submitting == true}">
+                <button type="submit" class="btn btn-primary btn-lg float-right" title="Submit!" ng-disabled="submitting == true" ng-class="{'disabled': submitting == true}">
                     <span ng-show="submitting == false"><i class="fa fa-rocket"></i></span>
                     <span ng-show="submitting == true"><i class="fa fa-spinner fa-spin"></i></span>
                 </button>

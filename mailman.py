@@ -5,24 +5,53 @@ from email.mime.base import MIMEBase
 from email import encoders
 import dropbox
 import os
+import sys
 
-fromaddr     = os.environ.get('FROM_ADDR', 'mail.tribal.app@gmail.com')
+fromaddr     = os.environ.get('FROM_ADDR', None)
 fromaddr_pwd = os.environ.get('FROM_ADDR_PWD', None)
-token        = os.environ.get('TOKEN', '5zHcLPZAPv4AAAAAAAAAF19XgtARCC6kHRZZ0y61j7RhUaDRHRc-wNagYnHVx7hg')
+token        = os.environ.get('TOKEN', None)
 filename     = os.environ.get('FILENAME', 'foo.pdf')
+mail_config       = os.environ.get('MAIL_CONFIG', 'mail_template.config')
 LOCAL_DIR    = './scratch/'
 DROPBOX_DIR  = '/'
+CHUNK_SIZE = 2 * 1024 * 1024
 
-def _clean():
+def _clean(file):
+    if os.path.isfile(LOCAL_DIR + file):
+        os.remove(LOCAL_DIR + file)
+    else:
+        print("Error: %s not found" % file)
+
+def _store(title, message):
+    with open(mail_config, 'w') as mc:
+        mc.write(title   + '\n')
+        mc.write(message + '\n')
     return
 
 def _upload(file):
     dbx = dropbox.Dropbox(token)
     try:
+        file_size = os.path.getsize(LOCAL_DIR + file)
         with open(LOCAL_DIR + file, 'rb') as f:
-            dbx.files_upload(f.read(), DROPBOX_DIR + file, dropbox.files.WriteMode('overwrite'))
+            if file_size <= CHUNK_SIZE:
+                dbx.files_upload(f.read(), DROPBOX_DIR + filename, dropbox.files.WriteMode('overwrite'))
+            else:
+                upload_session_start_result = dbx.files_upload_session_start(f.read(CHUNK_SIZE))
+                cursor = dropbox.files.UploadSessionCursor(session_id=upload_session_start_result.session_id,
+                                                           offset=f.tell())
+                commit = dropbox.files.CommitInfo(path=DROPBOX_DIR + filename)
+                while f.tell() < file_size:
+                    if ((file_size - f.tell()) <= CHUNK_SIZE):
+                        dbx.files_upload_session_finish(f.read(CHUNK_SIZE),
+                                                        cursor,
+                                                        commit)
+                    else:
+                        dbx.files_upload_session_append_v2(f.read(CHUNK_SIZE),
+                                                           cursor)
+                        cursor.offset = f.tell()
     except dropbox.exceptions.ApiError:
         return False
+    _clean(file)
     return True
 
 def _download():
@@ -31,7 +60,7 @@ def _download():
     # for entry in dbx.files_list_folder('').entries:
     #     print(entry.name)
     try:
-        dbx.files_download_to_file(filename, LOCAL_DIR + filename)
+        dbx.files_download_to_file(LOCAL_DIR + filename, DROPBOX_DIR + filename)
     except dropbox.exceptions.ApiError:
         return False
     return True
@@ -51,7 +80,7 @@ def _construct(name, toaddr):
            """
     msg.attach(MIMEText(body, 'plain'))
 
-    attachment = open(filename, "rb")
+    attachment = open(LOCAL_DIR + filename, "rb")
 
     part = MIMEBase('application', 'octet-stream')
     part.set_payload((attachment).read())
@@ -77,6 +106,7 @@ def _send(name, toaddr):
     finally:
         if server != None:
             server.quit()
+    _clean(filename)
     return True
 
 
@@ -87,4 +117,5 @@ def _mailman_send(name, toaddr):
         return False
 
 def _mailman_store(title, message, file):
+    _store(title, message)
     return _upload(file)
