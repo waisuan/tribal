@@ -36,6 +36,7 @@ def _store(title, message):
 
 
 def _upload(file):
+    print(os.listdir('scratch/'))
     print(os.listdir(LOCAL_DIR))
     dbx = dropbox.Dropbox(token)
     try:
