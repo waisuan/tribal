@@ -12,6 +12,7 @@ fromaddr = os.environ.get('FROM_ADDR', None)
 fromaddr_pwd = os.environ.get('FROM_ADDR_PWD', None)
 token = os.environ.get('TOKEN', None)
 filename = os.environ.get('FILENAME', None)
+smtp_port = os.environ.get('SMTP_PORT', None)
 LOCAL_DIR = os.path.join(os.path.dirname(__file__), 'scratch/')
 DROPBOX_DIR = '/'
 CHUNK_SIZE = 2 * 1024 * 1024
@@ -102,7 +103,7 @@ def _construct(toaddr):
 def _send(toaddr):
     msg = _construct(toaddr)
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.gmail.com', smtp_port)
         server.starttls()
         server.login(fromaddr, fromaddr_pwd)
         text = msg.as_string()
