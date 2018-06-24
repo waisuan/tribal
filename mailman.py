@@ -36,8 +36,8 @@ def _store(title, message):
 
 
 def _upload(file):
-    print(os.listdir('scratch/'))
-    print(os.listdir(LOCAL_DIR))
+    print(os.listdir('/scratch/'))
+    print(os.listdir('./scratch/'))
     dbx = dropbox.Dropbox(token)
     try:
         file_size = os.path.getsize(LOCAL_DIR + file)
