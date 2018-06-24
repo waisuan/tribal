@@ -57,7 +57,8 @@ def editMail():
         name, ext = os.path.splitext(attachment.filename)
         if ext not in ('.pdf'):
             raise ValueError
-        attachment.save('./scratch', True)
+        attachment.save(
+            os.path.join(os.path.dirname(__file__), 'scratch'), True)
         if not mailman._mailman_store(title, message, attachment.filename):
             raise RuntimeError
     except (ValueError, KeyError, RuntimeError, BottleException):

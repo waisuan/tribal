@@ -12,7 +12,7 @@ fromaddr = os.environ.get('FROM_ADDR', None)
 fromaddr_pwd = os.environ.get('FROM_ADDR_PWD', None)
 token = os.environ.get('TOKEN', None)
 filename = os.environ.get('FILENAME', None)
-LOCAL_DIR = './scratch/'
+LOCAL_DIR = os.path.join(os.path.dirname(__file__), 'scratch/')
 DROPBOX_DIR = '/'
 CHUNK_SIZE = 2 * 1024 * 1024
 
