@@ -3,16 +3,17 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
+import requests
 import dropbox
 import os
 import sys
 import shelve
 
+MAIL_DOMAIN = os.environ.get('MAIL_DOMAIN', None)
+MAIL_API = os.environ.get('MAIL_API', None)
 fromaddr = os.environ.get('FROM_ADDR', None)
-fromaddr_pwd = os.environ.get('FROM_ADDR_PWD', None)
 token = os.environ.get('TOKEN', None)
 filename = os.environ.get('FILENAME', None)
-smtp_port = os.environ.get('SMTP_PORT', None)
 LOCAL_DIR = os.path.join(os.path.dirname(__file__), 'scratch/')
 DROPBOX_DIR = '/'
 CHUNK_SIZE = 2 * 1024 * 1024
@@ -76,46 +77,24 @@ def _download():
     return True
 
 
-def _construct(toaddr):
+def _send(toaddr):
     post_office = _post_office()
-
-    msg = MIMEMultipart()
-    msg['From'] = fromaddr
-    msg['To'] = toaddr
-    msg['Subject'] = post_office['title']
-
-    body = post_office['message']
-    msg.attach(MIMEText(body, 'plain'))
-
     attachment = open(LOCAL_DIR + filename, "rb")
 
-    part = MIMEBase('application', 'octet-stream')
-    part.set_payload((attachment).read())
-    encoders.encode_base64(part)
-    part.add_header('Content-Disposition',
-                    "attachment; filename= %s" % filename)
+    sent = requests.post(
+        "https://api.mailgun.net/v3/" + MAIL_DOMAIN + "/messages",
+        auth=("api", MAIL_API),
+        files=[("attachment", (filename, attachment.read()))],
+        data={
+            "from": "tribal. <mailgun@" + MAIL_DOMAIN + ">",
+            "to": [toaddr],
+            "subject": post_office['title'],
+            "text": post_office['message']
+        })
 
-    msg.attach(part)
     attachment.close()
-    return msg
-
-
-def _send(toaddr):
-    msg = _construct(toaddr)
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', smtp_port)
-        server.starttls()
-        server.login(fromaddr, fromaddr_pwd)
-        text = msg.as_string()
-        server.sendmail(fromaddr, toaddr, text)
-    except:
-        print("Error whilst sending mail: ", sys.exc_info()[0])
-        return False
-    finally:
-        if server != None:
-            server.quit()
     _clean(filename)
-    return True
+    return sent
 
 
 def _mailman_send(toaddr):
